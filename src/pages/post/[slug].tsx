@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 
+import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -24,22 +25,74 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  readingTime: number;
 }
 
-// export default function Post() {
-//   // TODO
-// }
+const Post: React.FC<PostProps> = ({ post, readingTime }) => {
+  return (
+    <main>
+      <img src={post.data.banner.url} alt="" />
+      <h1>{post.data.title}</h1>
+      <div className="info">
+        <span>{post.first_publication_date}</span>
+        <span>{post.data.author}</span>
+        <span>{`${readingTime} min${readingTime > 1 ? 's' : ''}`}</span>
+      </div>
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient();
-//   const posts = await prismic.query(TODO);
+      {post.data.content.map(content => {
+        return (
+          <article>
+            <h2>{content.heading}</h2>
+            <div dangerouslySetInnerHTML={{ __html: content.body }} />
+          </article>
+        );
+      })}
+    </main>
+  );
+};
 
-//   // TODO
-// };
+export default Post;
 
-// export const getStaticProps = async context => {
-//   const prismic = getPrismicClient();
-//   const response = await prismic.getByUID(TODO);
+export const getStaticPaths: GetStaticPaths = async () => {
+  const prismic = getPrismicClient();
+  // const posts = await prismic.query(TODO);
 
-//   // TODO
-// };
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps = async context => {
+  const prismic = getPrismicClient();
+  const { slug } = context.params;
+  const response = await prismic.getByUID('posts', slug as string, {});
+
+  const postWords = response.data.content.reduce(
+    (acc, { body }) => acc + RichText.asText(body),
+    ''
+  );
+
+  const wordsPerMinute = 200;
+  const readingTime = Math.round(
+    postWords.match(/[\w]+/g).length / wordsPerMinute
+  );
+
+  const post = {
+    first_publication_date: response.first_publication_date,
+    data: {
+      ...response.data,
+      content: response.data.content.map(({ heading, body }) => ({
+        heading,
+        body: RichText.asHtml(body),
+      })),
+    },
+  };
+
+  return {
+    props: {
+      post,
+      readingTime,
+    },
+  };
+};
