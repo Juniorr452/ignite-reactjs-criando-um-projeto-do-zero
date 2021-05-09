@@ -1,6 +1,10 @@
+import common from '@styles/common.module.scss';
+
+import styles from './header.module.scss';
+
 const Header: React.FC = () => (
-  <header>
-    <h1>spacetravelling</h1>
+  <header className={`${styles.header} ${common.container}`}>
+    <img src="/logo.svg" alt="logo" />
   </header>
 );
 
