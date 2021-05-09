@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import Head from 'next/head';
 
 import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
@@ -31,6 +32,9 @@ interface PostProps {
 const Post: React.FC<PostProps> = ({ post, readingTime }) => {
   return (
     <main>
+      <Head>
+        <title>{post.data.title} | spacetravelling</title>
+      </Head>
       <img src={post.data.banner.url} alt="" />
       <h1>{post.data.title}</h1>
       <div className="info">

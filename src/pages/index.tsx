@@ -1,4 +1,5 @@
 import { GetStaticProps } from 'next';
+import Head from 'next/head';
 import Link from 'next/link';
 import Prismic from '@prismicio/client';
 
@@ -30,6 +31,9 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ posts, postsPagination }) => {
   return (
     <main>
+      <Head>
+        <title>Postagens | spacetravelling</title>
+      </Head>
       {posts.map(post => (
         <article key={post.uid}>
           <Link href={`/post/${post.uid}`}>
