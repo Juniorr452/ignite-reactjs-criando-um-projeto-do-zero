@@ -1,4 +1,6 @@
 import { GetStaticProps } from 'next';
+import Link from 'next/link';
+import Prismic from '@prismicio/client';
 
 import { getPrismicClient } from '../services/prismic';
 
@@ -21,16 +23,43 @@ interface PostPagination {
 }
 
 interface HomeProps {
+  posts: Post[];
   postsPagination: PostPagination;
 }
 
-// export default function Home() {
-//   // TODO
-// }
+const Home: React.FC<HomeProps> = ({ posts, postsPagination }) => {
+  return (
+    <main>
+      {posts.map(post => (
+        <article key={post.uid}>
+          <Link href={`/post/${post.uid}`}>
+            <a>
+              <h2>{post.data.title}</h2>
+            </a>
+          </Link>
+          <p>{post.data.subtitle}</p>
+          <span className="info">
+            <time>{post.first_publication_date}</time>
+            <span>{post.data.author}</span>
+          </span>
+        </article>
+      ))}
+    </main>
+  );
+};
 
-// export const getStaticProps = async () => {
-//   // const prismic = getPrismicClient();
-//   // const postsResponse = await prismic.query(TODO);
+export const getStaticProps: GetStaticProps = async () => {
+  const prismic = getPrismicClient();
+  const postsResponse = await prismic.query(
+    Prismic.Predicates.at('document.type', 'posts'),
+    { orderings: '[my.posts.date desc]' }
+  );
 
-//   // TODO
-// };
+  return {
+    props: {
+      posts: postsResponse.results,
+    },
+  };
+};
+
+export default Home;
