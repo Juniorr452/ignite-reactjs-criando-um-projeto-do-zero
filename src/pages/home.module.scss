@@ -2,7 +2,7 @@
   margin: 1rem 0;
 
   article {
-    & + article {
+    & + * {
       margin-top: 3rem;
     }
 
@@ -32,4 +32,12 @@
       }
     }
   }
+}
+
+.carregarMais {
+  border: 0;
+  background: transparent;
+
+  font-weight: bold;
+  color: var(--highlight);
 }
