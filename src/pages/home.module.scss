@@ -1,1 +1,35 @@
-// TODO
+.posts {
+  margin: 1rem 0;
+
+  article {
+    & + article {
+      margin-top: 3rem;
+    }
+
+    h2 {
+      font-size: 1.9rem;
+    }
+
+    .excerpt {
+      font-size: 1.2rem;
+      margin-top: .5rem;
+    }
+
+    .info {
+      margin-top: 1.25rem;
+
+      font-size: 0.9rem;
+      color: var(--info);
+
+      > * {
+        svg {
+          margin-right: 0.5rem;
+        }
+
+        & + * {
+          margin-left: 1rem;
+        }
+      }
+    }
+  }
+}

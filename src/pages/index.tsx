@@ -3,6 +3,9 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Prismic from '@prismicio/client';
 
+import { FaCalendar, FaUser } from 'react-icons/fa';
+
+import dateFormat from 'src/utils/dateFormat';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -30,24 +33,32 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ posts, postsPagination }) => {
   return (
-    <main>
+    <main className={commonStyles.container}>
       <Head>
         <title>Postagens | spacetravelling</title>
       </Head>
-      {posts.map(post => (
-        <article key={post.uid}>
-          <Link href={`/post/${post.uid}`}>
-            <a>
-              <h2>{post.data.title}</h2>
-            </a>
-          </Link>
-          <p>{post.data.subtitle}</p>
-          <span className="info">
-            <time>{post.first_publication_date}</time>
-            <span>{post.data.author}</span>
-          </span>
-        </article>
-      ))}
+      <div className={styles.posts}>
+        {posts.map(post => (
+          <article key={post.uid}>
+            <Link href={`/post/${post.uid}`}>
+              <a>
+                <h2>{post.data.title}</h2>
+              </a>
+            </Link>
+            <p className={styles.excerpt}>{post.data.subtitle}</p>
+            <div className={styles.info}>
+              <time>
+                <FaCalendar />
+                {dateFormat(post.first_publication_date, 'P')}
+              </time>
+              <span>
+                <FaUser />
+                {post.data.author}
+              </span>
+            </div>
+          </article>
+        ))}
+      </div>
     </main>
   );
 };

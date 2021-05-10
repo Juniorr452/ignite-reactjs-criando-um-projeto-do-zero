@@ -1,7 +1,10 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 
+import { FaCalendar, FaUser, FaClock } from 'react-icons/fa';
+
 import { RichText } from 'prismic-dom';
+import dateFormat from 'src/utils/dateFormat';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -35,22 +38,41 @@ const Post: React.FC<PostProps> = ({ post, readingTime }) => {
       <Head>
         <title>{post.data.title} | spacetravelling</title>
       </Head>
-      <img src={post.data.banner.url} alt="" />
-      <h1>{post.data.title}</h1>
-      <div className="info">
-        <span>{post.first_publication_date}</span>
-        <span>{post.data.author}</span>
-        <span>{`${readingTime} min${readingTime > 1 ? 's' : ''}`}</span>
-      </div>
 
-      {post.data.content.map(content => {
-        return (
-          <article>
-            <h2>{content.heading}</h2>
-            <div dangerouslySetInnerHTML={{ __html: content.body }} />
-          </article>
-        );
-      })}
+      <div
+        className={styles.cover}
+        style={{ backgroundImage: `url(${post.data.banner.url})` }}
+      />
+
+      <div className={`${styles.post} ${commonStyles.container}`}>
+        <h1>{post.data.title}</h1>
+
+        <div className={styles.info}>
+          <time>
+            <FaCalendar />
+            {dateFormat(post.first_publication_date, 'P')}
+          </time>
+          <span>
+            <FaUser />
+            {post.data.author}
+          </span>
+          <span>
+            <FaClock />
+            {`${readingTime} min${readingTime > 1 ? 's' : ''}`}
+          </span>
+        </div>
+
+        <div className={styles.body}>
+          {post.data.content.map(content => {
+            return (
+              <section className={styles.content}>
+                <h2>{content.heading}</h2>
+                <div dangerouslySetInnerHTML={{ __html: content.body }} />
+              </section>
+            );
+          })}
+        </div>
+      </div>
     </main>
   );
 };
