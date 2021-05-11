@@ -5,8 +5,8 @@ import Prismic from '@prismicio/client';
 
 import { FaCalendar, FaUser } from 'react-icons/fa';
 
-import dateFormat from 'src/utils/dateFormat';
 import { useState } from 'react';
+import dateFormat from '../utils/dateFormat';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -61,7 +61,7 @@ const Home: React.FC<HomeProps> = ({ postsPagination }) => {
             <div className={styles.info}>
               <time>
                 <FaCalendar />
-                {dateFormat(post.first_publication_date, 'P')}
+                {dateFormat(post.first_publication_date)}
               </time>
               <span>
                 <FaUser />

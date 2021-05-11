@@ -1,10 +1,12 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import Prismic from '@prismicio/client';
 
 import { FaCalendar, FaUser, FaClock } from 'react-icons/fa';
 
 import { RichText } from 'prismic-dom';
-import dateFormat from 'src/utils/dateFormat';
+import { useRouter } from 'next/router';
+import dateFormat from '../../utils/dateFormat';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -33,6 +35,16 @@ interface PostProps {
 }
 
 const Post: React.FC<PostProps> = ({ post, readingTime }) => {
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return (
+      <main className={`${styles.post} ${commonStyles.container}`}>
+        <h2>Carregando...</h2>
+      </main>
+    );
+  }
+
   return (
     <main>
       <Head>
@@ -50,7 +62,7 @@ const Post: React.FC<PostProps> = ({ post, readingTime }) => {
         <div className={styles.info}>
           <time>
             <FaCalendar />
-            {dateFormat(post.first_publication_date, 'P')}
+            {dateFormat(post.first_publication_date)}
           </time>
           <span>
             <FaUser />
@@ -58,14 +70,14 @@ const Post: React.FC<PostProps> = ({ post, readingTime }) => {
           </span>
           <span>
             <FaClock />
-            {`${readingTime} min${readingTime > 1 ? 's' : ''}`}
+            {`${readingTime} min`}
           </span>
         </div>
 
         <div className={styles.body}>
           {post.data.content.map(content => {
             return (
-              <section className={styles.content}>
+              <section className={styles.content} key={content.heading}>
                 <h2>{content.heading}</h2>
                 <div dangerouslySetInnerHTML={{ __html: content.body }} />
               </section>
@@ -81,11 +93,20 @@ export default Post;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
-  // const posts = await prismic.query(TODO);
+  const posts = await prismic.query(
+    Prismic.Predicates.at('document.type', 'posts'),
+    { fetch: 'posts.uid' }
+  );
+
+  console.log(posts);
 
   return {
-    paths: [],
-    fallback: 'blocking',
+    paths: posts.results.map(post => ({
+      params: {
+        slug: post.uid,
+      },
+    })),
+    fallback: true,
   };
 };
 
