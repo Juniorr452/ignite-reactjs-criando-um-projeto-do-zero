@@ -31,10 +31,9 @@ interface Post {
 
 interface PostProps {
   post: Post;
-  readingTime: number;
 }
 
-const Post: React.FC<PostProps> = ({ post, readingTime }) => {
+const Post: React.FC<PostProps> = ({ post }) => {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -44,6 +43,21 @@ const Post: React.FC<PostProps> = ({ post, readingTime }) => {
       </main>
     );
   }
+
+  const postWords = post.data.content.reduce(
+    (acc, { body }) => acc + RichText.asText(body),
+    ''
+  );
+
+  const wordsPerMinute = 150;
+  const readingTime = Math.round(
+    postWords.match(/[\w]+/g).length / wordsPerMinute
+  );
+
+  const content = post.data.content.map(({ heading, body }) => ({
+    heading,
+    body: RichText.asHtml(body),
+  }));
 
   return (
     <main>
@@ -75,11 +89,11 @@ const Post: React.FC<PostProps> = ({ post, readingTime }) => {
         </div>
 
         <div className={styles.body}>
-          {post.data.content.map(content => {
+          {content.map(({ heading, body }) => {
             return (
-              <section className={styles.content} key={content.heading}>
-                <h2>{content.heading}</h2>
-                <div dangerouslySetInnerHTML={{ __html: content.body }} />
+              <section className={styles.content} key={heading}>
+                <h2>{heading}</h2>
+                <div dangerouslySetInnerHTML={{ __html: body }} />
               </section>
             );
           })}
@@ -98,8 +112,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
     { fetch: 'posts.uid' }
   );
 
-  console.log(posts);
-
   return {
     paths: posts.results.map(post => ({
       params: {
@@ -111,35 +123,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async context => {
-  const prismic = getPrismicClient();
   const { slug } = context.params;
-  const response = await prismic.getByUID('posts', slug as string, {});
 
-  const postWords = response.data.content.reduce(
-    (acc, { body }) => acc + RichText.asText(body),
-    ''
-  );
-
-  const wordsPerMinute = 200;
-  const readingTime = Math.round(
-    postWords.match(/[\w]+/g).length / wordsPerMinute
-  );
-
-  const post = {
-    first_publication_date: response.first_publication_date,
-    data: {
-      ...response.data,
-      content: response.data.content.map(({ heading, body }) => ({
-        heading,
-        body: RichText.asHtml(body),
-      })),
-    },
-  };
+  const prismic = getPrismicClient();
+  const post = await prismic.getByUID('posts', slug as string, {});
 
   return {
     props: {
       post,
-      readingTime,
     },
   };
 };
