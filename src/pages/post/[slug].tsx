@@ -6,6 +6,7 @@ import { FaCalendar, FaUser, FaClock } from 'react-icons/fa';
 
 import { RichText } from 'prismic-dom';
 import { useRouter } from 'next/router';
+import { useUtterances } from 'src/hooks/useUtterances';
 import dateFormat from '../../utils/dateFormat';
 import { getPrismicClient } from '../../services/prismic';
 
@@ -39,6 +40,7 @@ interface PostProps {
 
 const Post: React.FC<PostProps> = ({ post, prevPost, nextPost }) => {
   const router = useRouter();
+  useUtterances('comments');
 
   if (router.isFallback) {
     return (
@@ -126,6 +128,8 @@ const Post: React.FC<PostProps> = ({ post, prevPost, nextPost }) => {
             </div>
           )}
         </div>
+
+        <div id="comments" className={styles.comments} />
       </div>
     </main>
   );
