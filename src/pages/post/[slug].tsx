@@ -13,6 +13,7 @@ import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 
 interface Post {
+  uid: string;
   first_publication_date: string | null;
   last_publication_date: string | null;
   data: {
@@ -32,9 +33,11 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  prevPost?: Post;
+  nextPost?: Post;
 }
 
-const Post: React.FC<PostProps> = ({ post }) => {
+const Post: React.FC<PostProps> = ({ post, prevPost, nextPost }) => {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -105,6 +108,24 @@ const Post: React.FC<PostProps> = ({ post }) => {
             );
           })}
         </div>
+
+        {(prevPost || nextPost) && <hr />}
+
+        <div className={styles.otherPosts}>
+          {prevPost && (
+            <div className={styles.prevPost}>
+              <h3>{prevPost.data.title}</h3>
+              <a href={`/post/${prevPost.uid}`}>Post anterior</a>
+            </div>
+          )}
+
+          {nextPost && (
+            <div className={styles.nextPost}>
+              <h3>{nextPost.data.title}</h3>
+              <a href={`/post/${nextPost.uid}`}>Próximo post</a>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
@@ -135,9 +156,29 @@ export const getStaticProps: GetStaticProps = async context => {
   const prismic = getPrismicClient();
   const post = await prismic.getByUID('posts', slug as string, {});
 
+  const prevPost =
+    (
+      await prismic.query(Prismic.Predicates.at('document.type', 'posts'), {
+        pageSize: 1,
+        after: `${post.id}`,
+        orderings: '[document.first_publication_date desc]',
+      })
+    ).results[0] || null;
+
+  const nextPost =
+    (
+      await prismic.query(Prismic.Predicates.at('document.type', 'posts'), {
+        pageSize: 1,
+        after: `${post.id}`,
+        orderings: '[document.first_publication_date]',
+      })
+    ).results[0] || null;
+
   return {
     props: {
       post,
+      prevPost,
+      nextPost,
     },
   };
 };

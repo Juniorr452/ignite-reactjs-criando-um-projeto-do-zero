@@ -58,4 +58,47 @@
       }
     }
   }
+
+  hr {
+    border-color: #D7D7D7;
+    opacity: 0.1;
+    margin: 4rem 0;
+  }
+
+  .otherPosts {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    a {
+      margin-top: 8px;
+      display: block;
+    }
+
+    .nextPost:first-child {
+      margin-left: auto;
+    }
+
+    .nextPost {
+      text-align: right;
+    }
+
+    @media(max-width: 960px) {
+      flex-direction: column;
+
+      .prevPost {
+        margin-bottom: 16px;
+      }
+
+      .prevPost, .nextPost {
+        text-align: center;
+      }
+    }
+  }
 }
