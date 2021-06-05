@@ -58,3 +58,23 @@ a {
 .info {
   color: var(--info);
 }
+
+.link-preview {
+  max-width: 760px;
+  margin: 0 auto;
+  margin-top: 5rem;
+  padding: 18px;
+  display: block;
+
+  border-radius: 4px;
+  color: var(--background);
+  background: var(--heading);
+
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+
+  &:hover {
+    text-decoration: none;
+  }
+}

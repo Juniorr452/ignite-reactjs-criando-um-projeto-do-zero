@@ -1,5 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import Prismic from '@prismicio/client';
 
 import { FaCalendar, FaUser, FaClock } from 'react-icons/fa';
@@ -36,9 +37,10 @@ interface PostProps {
   post: Post;
   prevPost?: Post;
   nextPost?: Post;
+  preview: boolean;
 }
 
-const Post: React.FC<PostProps> = ({ post, prevPost, nextPost }) => {
+const Post: React.FC<PostProps> = ({ post, prevPost, nextPost, preview }) => {
   const router = useRouter();
   useUtterances('comments');
 
@@ -130,6 +132,14 @@ const Post: React.FC<PostProps> = ({ post, prevPost, nextPost }) => {
         </div>
 
         <div id="comments" className={styles.comments} />
+
+        {preview && (
+          <aside>
+            <Link href="/api/exit-preview">
+              <a className="link-preview">Sair do modo Preview</a>
+            </Link>
+          </aside>
+        )}
       </div>
     </main>
   );
@@ -157,8 +167,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async context => {
   const { slug } = context.params;
 
+  const { preview = false, previewData } = context;
+
   const prismic = getPrismicClient();
-  const post = await prismic.getByUID('posts', slug as string, {});
+  const post = await prismic.getByUID('posts', slug as string, {
+    ref: previewData?.ref ?? null,
+  });
 
   const prevPost =
     (
@@ -166,6 +180,7 @@ export const getStaticProps: GetStaticProps = async context => {
         pageSize: 1,
         after: `${post.id}`,
         orderings: '[document.first_publication_date desc]',
+        ref: previewData?.ref ?? null,
       })
     ).results[0] || null;
 
@@ -175,6 +190,7 @@ export const getStaticProps: GetStaticProps = async context => {
         pageSize: 1,
         after: `${post.id}`,
         orderings: '[document.first_publication_date]',
+        ref: previewData?.ref ?? null,
       })
     ).results[0] || null;
 
@@ -183,6 +199,7 @@ export const getStaticProps: GetStaticProps = async context => {
       post,
       prevPost,
       nextPost,
+      preview,
     },
   };
 };
