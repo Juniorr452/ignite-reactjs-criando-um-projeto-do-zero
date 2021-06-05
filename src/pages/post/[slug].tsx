@@ -14,6 +14,7 @@ import styles from './post.module.scss';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -87,6 +88,12 @@ const Post: React.FC<PostProps> = ({ post }) => {
             {`${readingTime} min`}
           </span>
         </div>
+
+        {post.first_publication_date !== post.last_publication_date && (
+          <div className={styles.editedInfo}>
+            * editado em {dateFormat(post.last_publication_date)}
+          </div>
+        )}
 
         <div className={styles.body}>
           {content.map(({ heading, body }) => {
